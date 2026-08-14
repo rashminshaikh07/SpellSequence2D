@@ -1,0 +1,4 @@
+repository "Spell_Sequence/Spell_Sequence@13469954106101@cloud"
+  path "/"
+    br "/main"
+    co "/main"
