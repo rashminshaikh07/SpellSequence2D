@@ -1,188 +1,138 @@
 using UnityEngine;
 using UnityEngine.SceneManagement;
 
-public class GameManager : MonoBehaviour
+public class GameManagerScript : MonoBehaviour
 {
-    public static GameManager Instance;
+    public static GameManagerScript Instance;
 
     [Header("Game Settings")]
-    [SerializeField] private int startingLives = 3;
-    [SerializeField] private int startingRound = 1;
-    [SerializeField] private int maxRounds = 5;
-    [SerializeField] private float startingTime = 10f;
+    public int score = 0;
+    public int lives = 3;
+    public int round = 1;
+    public float timer = 60f;
+    public int maxRounds = 5;
 
-    [Header("Score")]
-    [SerializeField] private int matchScore = 10;
-    [SerializeField] private int simonScore = 20;
-    [SerializeField] private int roundBonus = 50;
+    [Header("Pause")]
+    public GameObject pausePanel;
 
-    // Current game values
-    public int Score { get; private set; }
-    public int Lives { get; private set; }
-    public int Round { get; private set; }
-    public float Timer { get; private set; }
+    private bool gameOver = false;
+    private bool isPaused = false;
 
-    public bool GameOver { get; private set; }
-
-    private void Awake()
+    void Awake()
     {
         if (Instance == null)
-        {
             Instance = this;
-        }
         else
-        {
             Destroy(gameObject);
-        }
     }
 
-    private void Start()
+    void Start()
     {
-        StartNewGame();
+        Time.timeScale = 1f;
+        isPaused = false;
+
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+        UIManager.Instance.UpdateUI(score, lives, round, timer);
     }
 
-    private void Update()
+    void Update()
     {
-        if (GameOver)
+        if (gameOver)
             return;
 
-        UpdateTimer();
-    }
+        if (isPaused)
+            return;
 
-    // -----------------------------
-    // GAME START
-    // -----------------------------
+        timer -= Time.deltaTime;
 
-    public void StartNewGame()
-    {
-        Score = 0;
-        Lives = startingLives;
-        Round = startingRound;
-        Timer = startingTime;
-        GameOver = false;
-
-        UpdateUI();
-    }
-
-    // -----------------------------
-    // TIMER
-    // -----------------------------
-
-    private void UpdateTimer()
-    {
-        Timer -= Time.deltaTime;
-
-        if (Timer <= 0f)
+        if (timer <= 0)
         {
-            Timer = 0f;
-            UpdateUI();
-            LoseGame();
-            return;
+            timer = 0;
+            GameOver();
         }
 
-        UpdateUI();
+        UIManager.Instance.UpdateUI(score, lives, round, timer);
     }
 
-    // -----------------------------
-    // SCORE
-    // -----------------------------
-
-    public void AddMatchScore()
+    public void AddScore(int points)
     {
-        AddScore(matchScore);
-    }
+        score += points;
 
-    public void AddSimonScore()
-    {
-        AddScore(simonScore);
+        UIManager.Instance.UpdateUI(
+            score,
+            lives,
+            round,
+            timer
+        );
     }
-
-    public void AddRoundBonus()
-    {
-        AddScore(roundBonus);
-    }
-
-    public void AddScore(int amount)
-    {
-        Score += amount;
-        UpdateUI();
-    }
-
-    // -----------------------------
-    // LIVES
-    // -----------------------------
 
     public void LoseLife()
     {
-        if (GameOver)
-            return;
+        lives--;
 
-        Lives--;
+        UIManager.Instance.UpdateUI(
+            score,
+            lives,
+            round,
+            timer
+        );
 
-        if (Lives <= 0)
+        if (lives <= 0)
         {
-            Lives = 0;
-            UpdateUI();
-            LoseGame();
-            return;
+            GameOver();
         }
-
-        UpdateUI();
     }
 
-    // -----------------------------
-    // ROUND
-    // -----------------------------
-
-    public void CompleteRound()
+    public void TogglePause()
     {
-        if (GameOver)
-            return;
-
-        AddRoundBonus();
-
-        if (Round >= maxRounds)
-        {
-            WinGame();
-            return;
-        }
-
-        Round++;
-
-        UpdateUI();
+        if (isPaused)
+            ResumeGame();
+        else
+            PauseGame();
     }
 
-    // -----------------------------
-    // WIN
-    // -----------------------------
-
-    public void WinGame()
+    public void PauseGame()
     {
-        if (GameOver)
+        if (gameOver)
             return;
 
-        GameOver = true;
+        isPaused = true;
 
-        SceneManager.LoadScene("WinScene");
+        Time.timeScale = 0f;
+
+        if (pausePanel != null)
+            pausePanel.SetActive(true);
     }
 
-    // -----------------------------
-    // LOSE
-    // -----------------------------
-
-    public void LoseGame()
+    public void ResumeGame()
     {
-        if (GameOver)
-            return;
+        isPaused = false;
 
-        GameOver = true;
+        Time.timeScale = 1f;
+
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+    }
+
+    void GameOver()
+    {
+        gameOver = true;
+
+        Time.timeScale = 1f;
 
         SceneManager.LoadScene("LoseScene");
     }
 
-    // -----------------------------
-    // RESTART
-    // -----------------------------
+    void WinGame()
+    {
+        gameOver = true;
+
+        Time.timeScale = 1f;
+
+        SceneManager.LoadScene("WinScene");
+    }
 
     public void RestartGame()
     {
@@ -191,31 +141,10 @@ public class GameManager : MonoBehaviour
         SceneManager.LoadScene("GameScene");
     }
 
-    // -----------------------------
-    // MAIN MENU
-    // -----------------------------
-
     public void GoToMainMenu()
     {
         Time.timeScale = 1f;
 
         SceneManager.LoadScene("MainMenu");
-    }
-
-    // -----------------------------
-    // UI
-    // -----------------------------
-
-    private void UpdateUI()
-    {
-        if (UIManager.Instance != null)
-        {
-            UIManager.Instance.UpdateUI(
-                Score,
-                Lives,
-                Round,
-                Timer
-            );
-        }
     }
 }
