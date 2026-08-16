@@ -17,6 +17,7 @@ public class GameManagerScript : MonoBehaviour
 
     private bool gameOver = false;
     private bool isPaused = false;
+    private bool timerRunning = false;
 
     void Awake()
     {
@@ -29,12 +30,19 @@ public class GameManagerScript : MonoBehaviour
     void Start()
     {
         Time.timeScale = 1f;
+
         isPaused = false;
+        timerRunning = false;
 
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
-        UIManager.Instance.UpdateUI(score, lives, round, timer);
+        UIManager.Instance.UpdateUI(
+            score,
+            lives,
+            round,
+            timer
+        );
     }
 
     void Update()
@@ -45,6 +53,10 @@ public class GameManagerScript : MonoBehaviour
         if (isPaused)
             return;
 
+        // Timer does NOT run until Simon has finished.
+        if (!timerRunning)
+            return;
+
         timer -= Time.deltaTime;
 
         if (timer <= 0)
@@ -53,7 +65,34 @@ public class GameManagerScript : MonoBehaviour
             GameOver();
         }
 
-        UIManager.Instance.UpdateUI(score, lives, round, timer);
+        UIManager.Instance.UpdateUI(
+            score,
+            lives,
+            round,
+            timer
+        );
+    }
+
+    public void StartPlayerTimer()
+    {
+        if (gameOver)
+            return;
+
+        timerRunning = true;
+
+        Debug.Log("PLAYER TIMER STARTED");
+
+        UIManager.Instance.UpdateUI(
+            score,
+            lives,
+            round,
+            timer
+        );
+    }
+
+    public void StopPlayerTimer()
+    {
+        timerRunning = false;
     }
 
     public void AddScore(int points)
@@ -125,7 +164,7 @@ public class GameManagerScript : MonoBehaviour
         SceneManager.LoadScene("LoseScene");
     }
 
-    void WinGame()
+    public void WinGame()
     {
         gameOver = true;
 

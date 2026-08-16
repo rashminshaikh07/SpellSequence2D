@@ -1,6 +1,7 @@
 using UnityEngine;
+using UnityEngine.EventSystems;
 
-public class Cards : MonoBehaviour
+public class Cards : MonoBehaviour, IPointerClickHandler
 {
     [Header("Card Information")]
     public int cardID;
@@ -14,7 +15,6 @@ public class Cards : MonoBehaviour
 
     private void Awake()
     {
-        // Always use the SpriteRenderer on this Card object.
         cardRenderer = GetComponent<SpriteRenderer>();
 
         if (cardRenderer == null)
@@ -28,6 +28,10 @@ public class Cards : MonoBehaviour
 
         ShowBack();
     }
+
+    // --------------------------------------------------
+    // REVEAL CARD
+    // --------------------------------------------------
 
     public void Reveal()
     {
@@ -44,16 +48,12 @@ public class Cards : MonoBehaviour
         }
 
         isRevealed = true;
-
         cardRenderer.sprite = cardFront;
-
-        Debug.Log(
-            "REVEAL | ID: " +
-            cardID +
-            " | SpriteRenderer now has: " +
-            cardRenderer.sprite.name
-        );
     }
+
+    // --------------------------------------------------
+    // HIDE CARD
+    // --------------------------------------------------
 
     public void Hide()
     {
@@ -65,16 +65,44 @@ public class Cards : MonoBehaviour
         }
     }
 
+    // --------------------------------------------------
+    // SHOW BACK
+    // --------------------------------------------------
+
     private void ShowBack()
     {
         if (cardRenderer != null && cardBack != null)
         {
             cardRenderer.sprite = cardBack;
         }
+
+        isRevealed = false;
     }
+
+    // --------------------------------------------------
+    // CHECK IF CARD IS CURRENTLY FACE-UP
+    // --------------------------------------------------
 
     public bool IsRevealed()
     {
         return isRevealed;
+    }
+
+    // --------------------------------------------------
+    // PLAYER CLICK
+    // --------------------------------------------------
+
+    public void OnPointerClick(PointerEventData eventData)
+    {
+        Debug.Log("CARD CLICKED! ID = " + cardID);
+
+        if (SimonManager.Instance != null)
+        {
+            SimonManager.Instance.CardClicked(this);
+        }
+        else
+        {
+            Debug.LogError("SimonManager.Instance is NULL!");
+        }
     }
 }

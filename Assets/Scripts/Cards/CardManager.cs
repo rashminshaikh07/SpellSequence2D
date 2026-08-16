@@ -1,4 +1,3 @@
-using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -14,19 +13,14 @@ public class CardManager : MonoBehaviour
     [Header("Grid Setup")]
     public int columns = 4;
     public int rows = 3;
-    public float spacingX = 2.2f;
-    public float spacingY = 2.8f;
-
-    [Header("Memory Phase")]
-    public float revealTime = 10f;
+    public float spacingX = 2.6f;
+    public float spacingY = 3.5f;
 
     private List<Cards> cards = new List<Cards>();
 
     private void Start()
     {
         CreateCards();
-
-        StartCoroutine(MemoryPhase());
     }
 
     private void CreateCards()
@@ -55,6 +49,7 @@ public class CardManager : MonoBehaviour
 
         List<int> cardTypes = new List<int>();
 
+        // Create 6 pairs.
         for (int i = 0; i < 6; i++)
         {
             cardTypes.Add(i);
@@ -92,6 +87,8 @@ public class CardManager : MonoBehaviour
                 card.cardID = cardType;
                 card.cardFront = cardSprites[cardType];
 
+                card.Hide();
+
                 cards.Add(card);
             }
             else
@@ -109,34 +106,11 @@ public class CardManager : MonoBehaviour
         );
     }
 
-    private IEnumerator MemoryPhase()
-    {
-        Debug.Log("Memory Phase Started");
-
-        // Reveal all cards.
-        foreach (Cards card in cards)
-        {
-            card.Reveal();
-        }
-
-        // Keep them visible for the memorization period.
-        yield return new WaitForSeconds(revealTime);
-
-        // Hide all cards again.
-        foreach (Cards card in cards)
-        {
-            card.Hide();
-        }
-
-        Debug.Log("Memory Phase Finished");
-    }
-
     private void Shuffle(List<int> list)
     {
         for (int i = list.Count - 1; i > 0; i--)
         {
-            int randomIndex =
-                Random.Range(0, i + 1);
+            int randomIndex = Random.Range(0, i + 1);
 
             int temp = list[i];
 
@@ -148,5 +122,13 @@ public class CardManager : MonoBehaviour
     public List<Cards> GetCards()
     {
         return cards;
+    }
+
+    public void HideAllCards()
+    {
+        foreach (Cards card in cards)
+        {
+            card.Hide();
+        }
     }
 }
