@@ -221,7 +221,7 @@ GameObject:
   - component: {fileID: 60481627}
   - component: {fileID: 60481626}
   m_Layer: 0
-  m_Name: Gemini_Generated_Image_yiwbicyiwbicyiwb-Photoroom_0
+  m_Name: Back
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -585,7 +585,7 @@ GameObject:
   - component: {fileID: 418055796}
   - component: {fileID: 418055795}
   m_Layer: 0
-  m_Name: Gemini_Generated_Image_axfx3oaxfx3oaxfx-Photoroom_0
+  m_Name: About Us
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
