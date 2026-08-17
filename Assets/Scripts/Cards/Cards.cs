@@ -49,6 +49,10 @@ public class Cards : MonoBehaviour, IPointerClickHandler
 
         isRevealed = true;
         cardRenderer.sprite = cardFront;
+        if (SFXManager.Instance != null)
+        {
+            SFXManager.Instance.PlayCardFlip();
+        }
     }
 
     // --------------------------------------------------
