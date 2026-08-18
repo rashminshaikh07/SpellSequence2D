@@ -11,10 +11,6 @@ public class UIManager : MonoBehaviour
     [SerializeField] private TMP_Text roundText;
     [SerializeField] private TMP_Text timerText;
 
-    [Header("Game Panels")]
-    [SerializeField] private GameObject winPanel;
-    [SerializeField] private GameObject losePanel;
-
     private void Awake()
     {
         if (Instance == null)
@@ -25,16 +21,6 @@ public class UIManager : MonoBehaviour
         {
             Destroy(gameObject);
         }
-    }
-
-    private void Start()
-    {
-        // Make sure both panels are hidden when the game starts
-        if (winPanel != null)
-            winPanel.SetActive(false);
-
-        if (losePanel != null)
-            losePanel.SetActive(false);
     }
 
     public void UpdateUI(
@@ -54,17 +40,5 @@ public class UIManager : MonoBehaviour
 
         if (timerText != null)
             timerText.text = "Time: " + Mathf.CeilToInt(timer);
-    }
-
-    public void ShowWinPanel()
-    {
-        if (winPanel != null)
-            winPanel.SetActive(true);
-    }
-
-    public void ShowLosePanel()
-    {
-        if (losePanel != null)
-            losePanel.SetActive(true);
     }
 }

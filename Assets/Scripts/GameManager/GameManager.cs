@@ -15,10 +15,6 @@ public class GameManagerScript : MonoBehaviour
     [Header("Pause")]
     public GameObject pausePanel;
 
-    [Header("Game Over Panels")]
-    public GameObject winPanel;
-    public GameObject losePanel;
-
     private bool gameOver = false;
     private bool isPaused = false;
     private bool timerRunning = false;
@@ -43,15 +39,9 @@ public class GameManagerScript : MonoBehaviour
         timerRunning = false;
         gameOver = false;
 
-        // Hide all panels when game starts
+        // Hide pause panel when game starts
         if (pausePanel != null)
             pausePanel.SetActive(false);
-
-        if (winPanel != null)
-            winPanel.SetActive(false);
-
-        if (losePanel != null)
-            losePanel.SetActive(false);
 
         if (UIManager.Instance != null)
         {
@@ -223,23 +213,12 @@ public class GameManagerScript : MonoBehaviour
 
         StopPlayerTimer();
 
-        Time.timeScale = 0f;
+        // Reset time before changing scene
+        Time.timeScale = 1f;
 
-        Debug.Log("GAME OVER - Showing Lose Panel");
+        Debug.Log("GAME OVER - Loading LoseScene");
 
-        // Hide pause panel
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        // Show lose panel
-        if (losePanel != null)
-        {
-            losePanel.SetActive(true);
-        }
-        else
-        {
-            Debug.LogError("Lose Panel is NOT assigned in GameManager!");
-        }
+        SceneManager.LoadScene("LoseScene");
     }
 
     // =========================================================
@@ -255,23 +234,12 @@ public class GameManagerScript : MonoBehaviour
 
         StopPlayerTimer();
 
-        Time.timeScale = 0f;
+        // Reset time before changing scene
+        Time.timeScale = 1f;
 
-        Debug.Log("GAME WON - Showing Win Panel");
+        Debug.Log("GAME WON - Loading WinScene");
 
-        // Hide pause panel
-        if (pausePanel != null)
-            pausePanel.SetActive(false);
-
-        // Show win panel
-        if (winPanel != null)
-        {
-            winPanel.SetActive(true);
-        }
-        else
-        {
-            Debug.LogError("Win Panel is NOT assigned in GameManager!");
-        }
+        SceneManager.LoadScene("WinScene");
     }
 
     // =========================================================

@@ -63,7 +63,7 @@ public class CardManager : MonoBehaviour
                 "Using Easy settings."
             );
 
-            columns = 4;
+            columns = 3;
             rows = 2;
 
             return;
@@ -80,7 +80,7 @@ public class CardManager : MonoBehaviour
 
             case DifficultyManager.Difficulty.Easy:
 
-                columns = 4;
+                columns = 3;
                 rows = 2;
 
                 spacingX = 3.0f;
