@@ -6,330 +6,919 @@ public class SimonManager : MonoBehaviour
 {
     public static SimonManager Instance;
 
+
+    // =========================================================
+    // REFERENCES
+    // =========================================================
+
     [Header("References")]
     public CardManager cardManager;
 
-    [Header("Simon")]
+
+    // =========================================================
+    // SIMON SETTINGS
+    // =========================================================
+
+    [Header("Simon Settings")]
+
+    // How long each Simon card remains visible.
     public float revealTime = 1.2f;
+
+    // Delay between Simon cards.
     public float gapBetweenCards = 0.2f;
 
+
+    // =========================================================
+    // INITIAL MEMORY
+    // =========================================================
+
     [Header("Initial Memory")]
+
+    // "Get Ready!" duration.
     public float getReadyTime = 2f;
+
+    // Time during which all cards are visible.
     public float memoryTime = 10f;
 
+
+    // =========================================================
+    // UI
+    // =========================================================
+
     [Header("UI")]
+
     public GameObject gameMessage;
+
     public TMPro.TMP_Text gameMessageText;
 
-    private List<int> sequence = new List<int>();
 
+    // =========================================================
+    // GAME VARIABLES
+    // =========================================================
+
+    // Simon sequence.
+    private List<int> sequence =
+        new List<int>();
+
+
+    // Current position in sequence.
     private int currentSequenceIndex = 0;
 
+
+    // First selected card.
     private Cards firstSelectedCard = null;
 
+
+    // Player input allowed?
     private bool playerCanInput = false;
+
+
+    // Has initial memory finished?
     private bool gameStarted = false;
+
+
+    // Prevent duplicate Simon coroutines.
+    private bool simonSequenceRunning = false;
+
+
+    // Maximum rounds.
+    private int maximumRounds = 3;
+
+
+    // =========================================================
+    // UNITY
+    // =========================================================
 
     private void Awake()
     {
         Instance = this;
     }
 
+
     private void Start()
     {
+        // Find CardManager automatically.
         if (cardManager == null)
-            cardManager = FindFirstObjectByType<CardManager>();
+        {
+            cardManager =
+                FindFirstObjectByType<CardManager>();
+        }
 
-        StartCoroutine(StartGame());
+
+        if (cardManager == null)
+        {
+            Debug.LogError(
+                "SimonManager: CardManager is missing."
+            );
+
+            return;
+        }
+
+
+        // Get maximum rounds from the SAME
+        // DifficultyManager used by CardManager.
+        SetMaximumRounds();
+
+
+        StartCoroutine(
+            StartGame()
+        );
     }
 
+
     // =========================================================
-    // GAME START
+    // DIFFICULTY BUTTON FUNCTIONS
+    // =========================================================
+    //
+    // You can directly assign these functions to
+    // your Unity UI buttons.
+    //
+    // Easy Button:
+    // SimonManager → SetEasy()
+    //
+    // Medium Button:
+    // SimonManager → SetMedium()
+    //
+    // Hard Button:
+    // SimonManager → SetHard()
+    //
+    // =========================================================
+
+
+    public void SetEasy()
+    {
+        ChangeDifficulty(
+            DifficultyManager.Difficulty.Easy
+        );
+    }
+
+
+    public void SetMedium()
+    {
+        ChangeDifficulty(
+            DifficultyManager.Difficulty.Medium
+        );
+    }
+
+
+    public void SetHard()
+    {
+        ChangeDifficulty(
+            DifficultyManager.Difficulty.Hard
+        );
+    }
+
+
+    // =========================================================
+    // CHANGE DIFFICULTY
+    // =========================================================
+
+    private void ChangeDifficulty(
+        DifficultyManager.Difficulty difficulty
+    )
+    {
+        if (DifficultyManager.Instance == null)
+        {
+            Debug.LogError(
+                "SimonManager: DifficultyManager not found!"
+            );
+
+            return;
+        }
+
+
+        // =====================================================
+        // SET ONE CENTRAL DIFFICULTY
+        // =====================================================
+
+        DifficultyManager.Instance.SetDifficulty(
+            difficulty
+        );
+
+
+        Debug.Log(
+            "SimonManager: Difficulty changed to " +
+            difficulty
+        );
+
+
+        // =====================================================
+        // UPDATE GRID
+        // =====================================================
+
+        if (cardManager == null)
+        {
+            cardManager =
+                FindFirstObjectByType<CardManager>();
+        }
+
+
+        if (cardManager != null)
+        {
+            // Destroy old Easy cards and create
+            // the correct Medium/Hard cards.
+            cardManager.RebuildGrid();
+        }
+
+
+        // =====================================================
+        // UPDATE ROUND LIMIT
+        // =====================================================
+
+        SetMaximumRounds();
+
+
+        // =====================================================
+        // RESET SIMON
+        // =====================================================
+
+        ResetSimonGame();
+
+
+        // =====================================================
+        // START THE GAME AGAIN
+        // =====================================================
+
+        StartCoroutine(
+            StartGame()
+        );
+    }
+
+
+    // =========================================================
+    // SET MAXIMUM ROUNDS
+    // =========================================================
+
+    private void SetMaximumRounds()
+    {
+        if (DifficultyManager.Instance == null)
+        {
+            maximumRounds = 3;
+
+            return;
+        }
+
+
+        // Get rounds from central DifficultyManager.
+        maximumRounds =
+            DifficultyManager.Instance
+            .GetMaximumRounds();
+
+
+        // Safety limit.
+        maximumRounds =
+            Mathf.Min(
+                maximumRounds,
+                8
+            );
+
+
+        // Update GameManager.
+        if (GameManagerScript.Instance != null)
+        {
+            GameManagerScript.Instance.maxRounds =
+                maximumRounds;
+        }
+
+
+        Debug.Log(
+            "SimonManager: Maximum rounds = " +
+            maximumRounds
+        );
+    }
+
+
+    // =========================================================
+    // RESET SIMON GAME
+    // =========================================================
+
+    private void ResetSimonGame()
+    {
+        // Stop currently running Simon sequences.
+        StopAllCoroutines();
+
+
+        // Reset game variables.
+        sequence.Clear();
+
+        currentSequenceIndex = 0;
+
+        firstSelectedCard = null;
+
+        playerCanInput = false;
+
+        gameStarted = false;
+
+        simonSequenceRunning = false;
+
+
+        // Stop timer.
+        if (GameManagerScript.Instance != null)
+        {
+            GameManagerScript.Instance.StopPlayerTimer();
+
+            GameManagerScript.Instance.round = 1;
+
+            GameManagerScript.Instance.maxRounds =
+                maximumRounds;
+        }
+
+
+        // Hide existing cards.
+        if (cardManager != null)
+        {
+            cardManager.HideAllCards();
+        }
+    }
+
+
+    // =========================================================
+    // START GAME
     // =========================================================
 
     private IEnumerator StartGame()
     {
+        // Give Unity time to finish creating cards.
         yield return null;
+
 
         if (cardManager == null)
         {
-            Debug.LogError("SimonManager: CardManager is missing.");
+            Debug.LogError(
+                "SimonManager: CardManager is missing."
+            );
+
             yield break;
         }
 
+
+        // Make sure round limit is correct.
+        SetMaximumRounds();
+
+
+        // Hide cards.
         cardManager.HideAllCards();
 
+
         playerCanInput = false;
+
         gameStarted = false;
 
-        ShowMessage("Get Ready!");
 
-        yield return new WaitForSeconds(getReadyTime);
+        // Show Get Ready.
+        ShowMessage(
+            "Get Ready!"
+        );
+
+
+        yield return new WaitForSeconds(
+            getReadyTime
+        );
+
 
         HideMessage();
 
-        // Show all 12 cards for memorization.
-        foreach (Cards card in cardManager.GetCards())
-            card.Reveal();
 
-        Debug.Log("Initial memory phase started.");
+        // =====================================================
+        // INITIAL MEMORY PHASE
+        // =====================================================
 
-        yield return new WaitForSeconds(memoryTime);
+        foreach (
+            Cards card
+            in cardManager.GetCards()
+        )
+        {
+            if (card != null)
+            {
+                card.Reveal();
+            }
+        }
 
-        // Hide all 12 cards.
+
+        Debug.Log(
+            "Initial memory phase started."
+        );
+
+
+        yield return new WaitForSeconds(
+            memoryTime
+        );
+
+
+        // Hide everything.
         cardManager.HideAllCards();
 
-        Debug.Log("Initial memory phase finished.");
+
+        Debug.Log(
+            "Initial memory phase finished."
+        );
+
 
         gameStarted = true;
+
+
+        // Start from Round 1.
+        if (GameManagerScript.Instance != null)
+        {
+            GameManagerScript.Instance.round = 1;
+
+            GameManagerScript.Instance.maxRounds =
+                maximumRounds;
+        }
+
 
         StartNewRound();
     }
 
+
     // =========================================================
-    // START ROUND
+    // START NEW ROUND
     // =========================================================
 
     private void StartNewRound()
     {
         if (!gameStarted)
+        {
             return;
+        }
+
 
         playerCanInput = false;
+
         firstSelectedCard = null;
 
-        if (GameManagerScript.Instance != null)
-            GameManagerScript.Instance.StopPlayerTimer();
 
+        if (GameManagerScript.Instance != null)
+        {
+            GameManagerScript.Instance.StopPlayerTimer();
+        }
+
+
+        // Hide board.
         cardManager.HideAllCards();
 
-        // Add exactly ONE new card to the sequence.
+
+        // Add one new Simon card.
         AddNewSequenceCard();
 
+
+        int currentRound = 1;
+
+
+        if (GameManagerScript.Instance != null)
+        {
+            currentRound =
+                GameManagerScript.Instance.round;
+        }
+
+
         Debug.Log(
-            "ROUND " +
-            GameManagerScript.Instance.round +
-            " | Sequence: " +
+            "========================================"
+        );
+
+
+        Debug.Log(
+            "DIFFICULTY: " +
+            DifficultyManager.Instance.currentDifficulty
+        );
+
+
+        Debug.Log(
+            "GRID: " +
+            cardManager.columns +
+            " x " +
+            cardManager.rows
+        );
+
+
+        Debug.Log(
+            "ROUND: " +
+            currentRound +
+            " / " +
+            maximumRounds
+        );
+
+
+        Debug.Log(
+            "SEQUENCE: " +
             SequenceText()
         );
 
-        StartCoroutine(ShowSimonSequence());
+
+        Debug.Log(
+            "========================================"
+        );
+
+
+        StartCoroutine(
+            ShowSimonSequence()
+        );
     }
+
+
+    // =========================================================
+    // ADD NEW SIMON CARD
+    // =========================================================
 
     private void AddNewSequenceCard()
     {
-        List<int> available = new List<int>();
+        List<int> available =
+            new List<int>();
 
-        for (int id = 0; id < 6; id++)
+
+        foreach (
+            Cards card
+            in cardManager.GetCards()
+        )
         {
-            if (!sequence.Contains(id))
-                available.Add(id);
+            if (card == null)
+            {
+                continue;
+            }
+
+
+            // Don't use the same card type twice
+            // in Simon's sequence.
+            if (!sequence.Contains(card.cardID))
+            {
+                available.Add(
+                    card.cardID
+                );
+            }
         }
+
 
         if (available.Count == 0)
         {
-            Debug.Log("All 6 card types are already in the sequence.");
+            Debug.LogError(
+                "SimonManager: No unused cards available!"
+            );
+
             return;
         }
 
-        int newID = available[Random.Range(0, available.Count)];
+
+        int newID =
+            available[
+                Random.Range(
+                    0,
+                    available.Count
+                )
+            ];
+
 
         sequence.Add(newID);
+
+
+        Debug.Log(
+            "Simon card added: " +
+            newID
+        );
     }
 
+
     // =========================================================
-    // SIMON SHOWS WHOLE SEQUENCE
+    // SHOW SIMON SEQUENCE
     // =========================================================
 
     private IEnumerator ShowSimonSequence()
     {
-        playerCanInput = false;
-
-        Debug.Log("Simon showing: " + SequenceText());
-
-        // Show each sequence card.
-        foreach (int id in sequence)
+        if (simonSequenceRunning)
         {
-            Cards card = FindCardByID(id);
-
-            if (card == null)
-                continue;
-
-            card.Reveal();
-
-            yield return new WaitForSeconds(revealTime);
-
-            card.Hide();
-
-            yield return new WaitForSeconds(gapBetweenCards);
+            yield break;
         }
 
-        // Make absolutely sure Simon's cards are hidden.
+
+        simonSequenceRunning = true;
+
+
+        playerCanInput = false;
+
+
+        // Start hidden.
         cardManager.HideAllCards();
 
+
+        for (
+            int i = 0;
+            i < sequence.Count;
+            i++
+        )
+        {
+            int id =
+                sequence[i];
+
+
+            Cards card =
+                FindCardByID(id);
+
+
+            if (card == null)
+            {
+                Debug.LogError(
+                    "SimonManager: Could not find card ID " +
+                    id
+                );
+
+                continue;
+            }
+
+
+            Debug.Log(
+                "Simon showing card " +
+                (i + 1) +
+                "/" +
+                sequence.Count +
+                " | ID: " +
+                id
+            );
+
+
+            // Hide everything before showing
+            // current Simon card.
+            cardManager.HideAllCards();
+
+
+            yield return null;
+
+
+            // Reveal current card.
+            card.Reveal();
+
+
+            yield return new WaitForSeconds(
+                revealTime
+            );
+
+
+            // Hide it again.
+            card.Hide();
+
+
+            yield return new WaitForSeconds(
+                gapBetweenCards
+            );
+        }
+
+
+        // Make sure everything is hidden.
+        cardManager.HideAllCards();
+
+
         currentSequenceIndex = 0;
+
         firstSelectedCard = null;
 
+
+        simonSequenceRunning = false;
+
+
+        // Player can now enter sequence.
         playerCanInput = true;
 
+
         if (GameManagerScript.Instance != null)
+        {
             GameManagerScript.Instance.StartPlayerTimer();
+        }
+
 
         Debug.Log(
-            "PLAYER TURN. Expected ID = " +
+            "PLAYER TURN"
+        );
+
+
+        Debug.Log(
+            "Expected ID: " +
             sequence[currentSequenceIndex]
         );
     }
 
+
     // =========================================================
-    // PLAYER CLICKS
+    // PLAYER CLICKS CARD
     // =========================================================
 
-    public void CardClicked(Cards clickedCard)
+    public void CardClicked(
+        Cards clickedCard
+    )
     {
-        if (!playerCanInput || clickedCard == null)
+        if (
+            !playerCanInput ||
+            clickedCard == null
+        )
+        {
             return;
+        }
 
-        int expectedID = sequence[currentSequenceIndex];
 
-        // -----------------------------------------------------
-        // FIRST CARD OF CURRENT PAIR
-        // -----------------------------------------------------
+        int expectedID =
+            sequence[currentSequenceIndex];
+
+
+        // =====================================================
+        // FIRST CARD
+        // =====================================================
 
         if (firstSelectedCard == null)
         {
-            // Wrong sequence.
-            if (clickedCard.cardID != expectedID)
+            // Wrong Simon card.
+            if (
+                clickedCard.cardID !=
+                expectedID
+            )
             {
                 clickedCard.Reveal();
 
+
                 StartCoroutine(
-                    WrongMoveRoutine(clickedCard)
+                    WrongMoveRoutine(
+                        clickedCard
+                    )
                 );
+
 
                 return;
             }
 
-            // Correct first card.
-            firstSelectedCard = clickedCard;
+
+            // Correct Simon card.
+            firstSelectedCard =
+                clickedCard;
+
+
             firstSelectedCard.Reveal();
 
+
             Debug.Log(
-                "Correct sequence card: " +
+                "Correct Simon card: " +
                 clickedCard.cardID
             );
 
+
             return;
         }
 
-        // -----------------------------------------------------
-        // SECOND CARD OF PAIR
-        // -----------------------------------------------------
 
-        if (clickedCard == firstSelectedCard)
+        // =====================================================
+        // SECOND CARD
+        // =====================================================
+
+        // Same physical card cannot be selected twice.
+        if (
+            clickedCard ==
+            firstSelectedCard
+        )
         {
             StartCoroutine(
-                WrongMoveRoutine(clickedCard)
+                WrongMoveRoutine(
+                    clickedCard
+                )
             );
+
 
             return;
         }
 
-        // Reveal the second card even if it is wrong.
+
+        // Reveal second card.
         clickedCard.Reveal();
 
-        // Wrong matching pair.
-        if (clickedCard.cardID != firstSelectedCard.cardID)
+
+        // =====================================================
+        // WRONG PAIR
+        // =====================================================
+
+        if (
+            clickedCard.cardID !=
+            firstSelectedCard.cardID
+        )
         {
             StartCoroutine(
-                WrongPairRoutine(clickedCard)
+                WrongPairRoutine(
+                    clickedCard
+                )
             );
+
 
             return;
         }
 
-        // -----------------------------------------------------
+
+        // =====================================================
         // CORRECT PAIR
-        // -----------------------------------------------------
+        // =====================================================
 
         Debug.Log(
             "Correct pair: " +
             clickedCard.cardID
         );
 
-        // Keep BOTH cards face-up.
-        // We intentionally do NOT hide them here.
 
         firstSelectedCard = null;
 
+
+        // Move to next Simon card.
         currentSequenceIndex++;
 
-        // Entire sequence completed.
-        if (currentSequenceIndex >= sequence.Count)
+
+        // =====================================================
+        // SEQUENCE COMPLETE
+        // =====================================================
+
+        if (
+            currentSequenceIndex >=
+            sequence.Count
+        )
         {
-            StartCoroutine(CompleteRound());
+            StartCoroutine(
+                CompleteRound()
+            );
+
+
             return;
         }
 
-        // Move to the next Simon card.
+
         Debug.Log(
-            "Next expected card ID = " +
+            "Next expected ID: " +
             sequence[currentSequenceIndex]
         );
     }
 
+
     // =========================================================
-    // WRONG FIRST CARD
+    // WRONG SIMON CARD
     // =========================================================
 
-    private IEnumerator WrongMoveRoutine(Cards wrongCard)
+    private IEnumerator WrongMoveRoutine(
+        Cards wrongCard
+    )
     {
         playerCanInput = false;
 
+
         Debug.Log(
-            "WRONG SEQUENCE. Clicked ID = " +
+            "WRONG SEQUENCE. " +
+            "Clicked: " +
             wrongCard.cardID +
-            " | Expected ID = " +
+            " | Expected: " +
             sequence[currentSequenceIndex]
         );
 
-        // Leave the wrong card visible briefly.
-        yield return new WaitForSeconds(0.6f);
+
+        yield return new WaitForSeconds(
+            0.6f
+        );
+
 
         cardManager.HideAllCards();
 
+
         firstSelectedCard = null;
+
 
         LoseLifeAndRetry();
     }
 
+
     // =========================================================
-    // WRONG MATCHING PAIR
+    // WRONG PAIR
     // =========================================================
 
-    private IEnumerator WrongPairRoutine(Cards wrongCard)
+    private IEnumerator WrongPairRoutine(
+        Cards wrongCard
+    )
     {
         playerCanInput = false;
 
+
         Debug.Log(
-            "WRONG MATCH. Expected pair ID = " +
+            "WRONG MATCH. " +
+            "Expected pair: " +
             firstSelectedCard.cardID +
-            " | Clicked ID = " +
+            " | Clicked: " +
             wrongCard.cardID
         );
 
-        // Both cards remain visible briefly.
-        yield return new WaitForSeconds(0.8f);
+
+        yield return new WaitForSeconds(
+            0.8f
+        );
+
 
         cardManager.HideAllCards();
 
+
         firstSelectedCard = null;
+
 
         LoseLifeAndRetry();
     }
 
+
     // =========================================================
-    // LOSE LIFE + RESTART SAME SEQUENCE
+    // LOSE LIFE
     // =========================================================
 
     private void LoseLifeAndRetry()
@@ -337,134 +926,243 @@ public class SimonManager : MonoBehaviour
         if (GameManagerScript.Instance != null)
         {
             GameManagerScript.Instance.StopPlayerTimer();
+
             GameManagerScript.Instance.LoseLife();
         }
 
-        // If lives reached zero, GameManager loads LoseScene.
-        if (GameManagerScript.Instance != null &&
-            GameManagerScript.Instance.lives <= 0)
+
+        if (
+            GameManagerScript.Instance != null &&
+            GameManagerScript.Instance.lives <= 0
+        )
         {
             return;
         }
 
-        StartCoroutine(RetrySameSequence());
+
+        StartCoroutine(
+            RetrySameSequence()
+        );
     }
+
+
+    // =========================================================
+    // RETRY SAME SEQUENCE
+    // =========================================================
 
     private IEnumerator RetrySameSequence()
     {
-        yield return new WaitForSeconds(1f);
+        yield return new WaitForSeconds(
+            1f
+        );
+
 
         cardManager.HideAllCards();
 
+
+        // Restart from beginning of SAME sequence.
         currentSequenceIndex = 0;
+
+
         firstSelectedCard = null;
 
-        // Same sequence again.
-        StartCoroutine(ShowSimonSequence());
+
+        StartCoroutine(
+            ShowSimonSequence()
+        );
     }
 
+
     // =========================================================
-    // ROUND COMPLETED
+    // COMPLETE ROUND
     // =========================================================
 
     private IEnumerator CompleteRound()
     {
         playerCanInput = false;
 
+
         if (GameManagerScript.Instance != null)
         {
             GameManagerScript.Instance.StopPlayerTimer();
 
-            // Score increases according to sequence length.
+
+            // Score:
+            // Round 1 = 100
+            // Round 2 = 200
+            // etc.
             GameManagerScript.Instance.AddScore(
                 sequence.Count * 100
             );
         }
 
+
+        int currentRound = 1;
+
+
+        if (GameManagerScript.Instance != null)
+        {
+            currentRound =
+                GameManagerScript.Instance.round;
+        }
+
+
         Debug.Log(
-            "ROUND COMPLETE! Sequence: " +
-            SequenceText()
+            "ROUND " +
+            currentRound +
+            " COMPLETE!"
         );
 
-        // Keep the successfully matched pairs visible briefly.
-        yield return new WaitForSeconds(0.8f);
 
-        // Now all cards from the completed sequence go back.
+        yield return new WaitForSeconds(
+            0.8f
+        );
+
+
         cardManager.HideAllCards();
 
+
         if (GameManagerScript.Instance == null)
-            yield break;
-
-        // Check whether this was the final round.
-        if (
-            GameManagerScript.Instance.round >=
-            GameManagerScript.Instance.maxRounds
-        )
         {
-            Debug.Log("FINAL ROUND COMPLETE!");
-
-            GameManagerScript.Instance.WinGame();
             yield break;
         }
 
-        // Next round.
+
+        // =====================================================
+        // FINAL ROUND
+        // =====================================================
+
+        if (
+            GameManagerScript.Instance.round >=
+            maximumRounds
+        )
+        {
+            Debug.Log(
+                "FINAL ROUND COMPLETE!"
+            );
+
+
+            Debug.Log(
+                "Difficulty: " +
+                DifficultyManager.Instance.currentDifficulty
+            );
+
+
+            Debug.Log(
+                "Maximum rounds: " +
+                maximumRounds
+            );
+
+
+            GameManagerScript.Instance.WinGame();
+
+
+            yield break;
+        }
+
+
+        // =====================================================
+        // NEXT ROUND
+        // =====================================================
+
         GameManagerScript.Instance.round++;
 
-        yield return new WaitForSeconds(0.8f);
+
+        yield return new WaitForSeconds(
+            0.8f
+        );
+
 
         StartNewRound();
     }
+
 
     // =========================================================
     // FIND CARD
     // =========================================================
 
-    private Cards FindCardByID(int id)
+    private Cards FindCardByID(
+        int id
+    )
     {
-        foreach (Cards card in cardManager.GetCards())
+        foreach (
+            Cards card
+            in cardManager.GetCards()
+        )
         {
-            if (card.cardID == id)
+            if (
+                card != null &&
+                card.cardID == id
+            )
+            {
                 return card;
+            }
         }
+
 
         return null;
     }
 
+
     // =========================================================
-    // DEBUG
+    // SEQUENCE TEXT
     // =========================================================
 
     private string SequenceText()
     {
         string result = "";
 
-        for (int i = 0; i < sequence.Count; i++)
+
+        for (
+            int i = 0;
+            i < sequence.Count;
+            i++
+        )
         {
             result += sequence[i];
 
-            if (i < sequence.Count - 1)
+
+            if (
+                i <
+                sequence.Count - 1
+            )
+            {
                 result += " → ";
+            }
         }
+
 
         return result;
     }
 
+
     // =========================================================
-    // MESSAGE
+    // UI
     // =========================================================
 
-    private void ShowMessage(string message)
+    private void ShowMessage(
+        string message
+    )
     {
         if (gameMessage != null)
+        {
             gameMessage.SetActive(true);
+        }
+
 
         if (gameMessageText != null)
-            gameMessageText.text = message;
+        {
+            gameMessageText.text =
+                message;
+        }
     }
+
 
     private void HideMessage()
     {
         if (gameMessage != null)
+        {
             gameMessage.SetActive(false);
+        }
     }
 }
