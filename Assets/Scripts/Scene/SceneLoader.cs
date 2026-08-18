@@ -14,7 +14,11 @@ public class SceneLoader : MonoBehaviour
         Time.timeScale = 1f;
         SceneManager.LoadScene("HowToPlay");
     }
-
+    public void LoadLevels()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("LevelManager");
+    }
     public void LoadGame()
     {
         Time.timeScale = 1f;
