@@ -178,8 +178,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Round '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b735289091378df4e825bc820e448f03, type: 2}
-  m_sharedMaterial: {fileID: 2145074809892568890, guid: b735289091378df4e825bc820e448f03, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
+  m_sharedMaterial: {fileID: -7682304521786070117, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -310,7 +310,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: UnityEngine.UI::UnityEngine.UI.Image
   m_Material: {fileID: 0}
-  m_Color: {r: 0, g: 0, b: 0, a: 0.392}
+  m_Color: {r: 0, g: 0, b: 0, a: 0}
   m_RaycastTarget: 1
   m_RaycastPadding: {x: 0, y: 0, z: 0, w: 0}
   m_Maskable: 1
@@ -2042,8 +2042,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Score '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b735289091378df4e825bc820e448f03, type: 2}
-  m_sharedMaterial: {fileID: 2145074809892568890, guid: b735289091378df4e825bc820e448f03, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
+  m_sharedMaterial: {fileID: -7682304521786070117, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2106,7 +2106,7 @@ MonoBehaviour:
   m_VertexBufferAutoSizeReduction: 0
   m_useMaxVisibleDescender: 1
   m_pageToDisplay: 1
-  m_margin: {x: 0, y: 0, z: 0, w: 0}
+  m_margin: {x: 0, y: 0, z: -90.107086, w: 0}
   m_isUsingLegacyAnimationComponent: 0
   m_isVolumetricText: 0
   m_hasFontAssetChanged: 0
@@ -2259,7 +2259,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.9, y: 1}
   m_AnchorMax: {x: 0.9, y: 1}
-  m_AnchoredPosition: {x: 122.03998, y: -3.000122}
+  m_AnchoredPosition: {x: 122.04001, y: -3.000122}
   m_SizeDelta: {x: 140, y: 130}
   m_Pivot: {x: 0.5, y: 1}
 --- !u!114 &1465443360
@@ -2794,8 +2794,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Timer '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b735289091378df4e825bc820e448f03, type: 2}
-  m_sharedMaterial: {fileID: 2145074809892568890, guid: b735289091378df4e825bc820e448f03, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
+  m_sharedMaterial: {fileID: -7682304521786070117, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3195,8 +3195,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Lives '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: b735289091378df4e825bc820e448f03, type: 2}
-  m_sharedMaterial: {fileID: 2145074809892568890, guid: b735289091378df4e825bc820e448f03, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
+  m_sharedMaterial: {fileID: -7682304521786070117, guid: 6479e9114e9ce544b8a87a357f667cde, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
