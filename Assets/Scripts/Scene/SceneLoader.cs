@@ -9,10 +9,22 @@ public class SceneLoader : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
+    public void LoadHowToPlay()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("HowToPlay");
+    }
+
     public void LoadGame()
     {
         Time.timeScale = 1f;
         SceneManager.LoadScene("GameScene");
+    }
+
+    public void LoadSettings()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("SettingScene");
     }
 
     public void LoadWin()
@@ -36,7 +48,6 @@ public class SceneLoader : MonoBehaviour
     public void QuitGame()
     {
         Debug.Log("Quit Game");
-
         Application.Quit();
     }
 }
