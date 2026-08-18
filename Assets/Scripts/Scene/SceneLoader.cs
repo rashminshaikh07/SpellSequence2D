@@ -9,6 +9,11 @@ public class SceneLoader : MonoBehaviour
         SceneManager.LoadScene("MainMenu");
     }
 
+    public void LoadAboutUs()
+    {
+        Time.timeScale = 1f;
+        SceneManager.LoadScene("About us");
+    }
     public void LoadHowToPlay()
     {
         Time.timeScale = 1f;

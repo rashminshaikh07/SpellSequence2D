@@ -1216,10 +1216,12 @@ MonoBehaviour:
   - {fileID: 21300000, guid: 800b7cfbeff179f4ead9b6ff522ffa83, type: 3}
   - {fileID: 21300000, guid: 2f7259714ee9c234cb750d27676eeb95, type: 3}
   - {fileID: 21300000, guid: 4b1a1890d8e9bb24d942ec0dba337a2d, type: 3}
+  - {fileID: 1098286324429101383, guid: 1aecd950fdbe7644a9d2aa1750b4807d, type: 3}
+  - {fileID: -4456225766891094810, guid: e6a22cbd42bea0444bda41477b1efba0, type: 3}
   columns: 4
   rows: 3
   spacingX: 2.6
-  spacingY: 3
+  spacingY: 0.5
 --- !u!4 &607282066
 Transform:
   m_ObjectHideFlags: 0
@@ -2395,7 +2397,7 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0, y: 0}
   m_AnchorMax: {x: 1, y: 1}
-  m_AnchoredPosition: {x: -2, y: -3.000122}
+  m_AnchoredPosition: {x: -2, y: -3.000061}
   m_SizeDelta: {x: 0, y: 0}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!114 &1515903386
@@ -2640,7 +2642,7 @@ MonoBehaviour:
   score: 0
   lives: 3
   round: 1
-  timer: 120
+  timer: 90
   maxRounds: 6
   pausePanel: {fileID: 1515903384}
   winPanel: {fileID: 774313704}

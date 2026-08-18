@@ -13,11 +13,11 @@ public class CardManager : MonoBehaviour
 
 
     [Header("Grid Setup")]
-    public int columns = 3;
+    public int columns = 4;
     public int rows = 2;
 
     public float spacingX = 2.6f;
-    public float spacingY = 3.5f;
+    public float spacingY = 2.0f;
 
 
     // Stores all cards currently in the game.
@@ -63,7 +63,7 @@ public class CardManager : MonoBehaviour
                 "Using Easy settings."
             );
 
-            columns = 3;
+            columns = 4;
             rows = 2;
 
             return;
@@ -80,14 +80,14 @@ public class CardManager : MonoBehaviour
 
             case DifficultyManager.Difficulty.Easy:
 
-                columns = 3;
+                columns = 4;
                 rows = 2;
 
                 spacingX = 3.0f;
                 spacingY = 3.8f;
 
                 Debug.Log(
-                    "CardManager: EASY - 3 x 2 grid"
+                    "CardManager: EASY - 4 x 2 grid"
                 );
 
                 break;
@@ -103,7 +103,7 @@ public class CardManager : MonoBehaviour
                 rows = 3;
 
                 spacingX = 2.6f;
-                spacingY = 3.5f;
+                spacingY = 2.6f;
 
                 Debug.Log(
                     "CardManager: MEDIUM - 4 x 3 grid"
