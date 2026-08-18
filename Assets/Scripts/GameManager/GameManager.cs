@@ -15,6 +15,10 @@ public class GameManagerScript : MonoBehaviour
     [Header("Pause")]
     public GameObject pausePanel;
 
+    [Header("Game Over Panels")]
+    public GameObject winPanel;
+    public GameObject losePanel;
+
     private bool gameOver = false;
     private bool isPaused = false;
     private bool timerRunning = false;
@@ -22,9 +26,13 @@ public class GameManagerScript : MonoBehaviour
     void Awake()
     {
         if (Instance == null)
+        {
             Instance = this;
+        }
         else
+        {
             Destroy(gameObject);
+        }
     }
 
     void Start()
@@ -33,16 +41,27 @@ public class GameManagerScript : MonoBehaviour
 
         isPaused = false;
         timerRunning = false;
+        gameOver = false;
 
+        // Hide all panels when game starts
         if (pausePanel != null)
             pausePanel.SetActive(false);
 
-        UIManager.Instance.UpdateUI(
-            score,
-            lives,
-            round,
-            timer
-        );
+        if (winPanel != null)
+            winPanel.SetActive(false);
+
+        if (losePanel != null)
+            losePanel.SetActive(false);
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateUI(
+                score,
+                lives,
+                round,
+                timer
+            );
+        }
     }
 
     void Update()
@@ -53,7 +72,7 @@ public class GameManagerScript : MonoBehaviour
         if (isPaused)
             return;
 
-        // Timer does NOT run until Simon has finished.
+        // Timer does not run until Simon has finished
         if (!timerRunning)
             return;
 
@@ -62,16 +81,26 @@ public class GameManagerScript : MonoBehaviour
         if (timer <= 0)
         {
             timer = 0;
+
             GameOver();
+
+            return;
         }
 
-        UIManager.Instance.UpdateUI(
-            score,
-            lives,
-            round,
-            timer
-        );
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateUI(
+                score,
+                lives,
+                round,
+                timer
+            );
+        }
     }
+
+    // =========================================================
+    // TIMER
+    // =========================================================
 
     public void StartPlayerTimer()
     {
@@ -82,12 +111,15 @@ public class GameManagerScript : MonoBehaviour
 
         Debug.Log("PLAYER TIMER STARTED");
 
-        UIManager.Instance.UpdateUI(
-            score,
-            lives,
-            round,
-            timer
-        );
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateUI(
+                score,
+                lives,
+                round,
+                timer
+            );
+        }
     }
 
     public void StopPlayerTimer()
@@ -95,34 +127,57 @@ public class GameManagerScript : MonoBehaviour
         timerRunning = false;
     }
 
+    // =========================================================
+    // SCORE
+    // =========================================================
+
     public void AddScore(int points)
     {
         score += points;
 
-        UIManager.Instance.UpdateUI(
-            score,
-            lives,
-            round,
-            timer
-        );
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateUI(
+                score,
+                lives,
+                round,
+                timer
+            );
+        }
     }
+
+    // =========================================================
+    // LIVES
+    // =========================================================
 
     public void LoseLife()
     {
         lives--;
 
-        UIManager.Instance.UpdateUI(
-            score,
-            lives,
-            round,
-            timer
-        );
+        if (lives < 0)
+            lives = 0;
+
+        if (UIManager.Instance != null)
+        {
+            UIManager.Instance.UpdateUI(
+                score,
+                lives,
+                round,
+                timer
+            );
+        }
+
+        Debug.Log("Life lost. Remaining lives: " + lives);
 
         if (lives <= 0)
         {
             GameOver();
         }
     }
+
+    // =========================================================
+    // PAUSE
+    // =========================================================
 
     public void TogglePause()
     {
@@ -155,23 +210,73 @@ public class GameManagerScript : MonoBehaviour
             pausePanel.SetActive(false);
     }
 
-    void GameOver()
+    // =========================================================
+    // LOSE
+    // =========================================================
+
+    public void GameOver()
     {
+        if (gameOver)
+            return;
+
         gameOver = true;
 
-        Time.timeScale = 1f;
+        StopPlayerTimer();
 
-        SceneManager.LoadScene("LoseScene");
+        Time.timeScale = 0f;
+
+        Debug.Log("GAME OVER - Showing Lose Panel");
+
+        // Hide pause panel
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+        // Show lose panel
+        if (losePanel != null)
+        {
+            losePanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("Lose Panel is NOT assigned in GameManager!");
+        }
     }
+
+    // =========================================================
+    // WIN
+    // =========================================================
 
     public void WinGame()
     {
+        if (gameOver)
+            return;
+
         gameOver = true;
 
-        Time.timeScale = 1f;
+        StopPlayerTimer();
 
-        SceneManager.LoadScene("WinScene");
+        Time.timeScale = 0f;
+
+        Debug.Log("GAME WON - Showing Win Panel");
+
+        // Hide pause panel
+        if (pausePanel != null)
+            pausePanel.SetActive(false);
+
+        // Show win panel
+        if (winPanel != null)
+        {
+            winPanel.SetActive(true);
+        }
+        else
+        {
+            Debug.LogError("Win Panel is NOT assigned in GameManager!");
+        }
     }
+
+    // =========================================================
+    // RESTART
+    // =========================================================
 
     public void RestartGame()
     {
@@ -179,6 +284,10 @@ public class GameManagerScript : MonoBehaviour
 
         SceneManager.LoadScene("GameScene");
     }
+
+    // =========================================================
+    // MAIN MENU
+    // =========================================================
 
     public void GoToMainMenu()
     {
