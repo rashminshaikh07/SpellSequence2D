@@ -7,7 +7,7 @@ public class CardManager : MonoBehaviour
     public GameObject cardPrefab;
     public Transform cardParent;
 
-    [Header("Unique Card Sprites - 6 Pairs")]
+    [Header("Unique Card Sprites")]
     public Sprite[] cardSprites;
 
     [Header("Grid Setup")]
@@ -20,7 +20,58 @@ public class CardManager : MonoBehaviour
 
     private void Start()
     {
+        SetDifficultySettings();
         CreateCards();
+    }
+
+    private void SetDifficultySettings()
+    {
+        if (DifficultyManager.Instance == null)
+        {
+            Debug.LogWarning(
+                "CardManager: DifficultyManager not found. Using Medium settings."
+            );
+
+            columns = 4;
+            rows = 3;
+            return;
+        }
+
+        switch (DifficultyManager.Instance.currentDifficulty)
+        {
+            case DifficultyManager.Difficulty.Easy:
+
+                columns = 3;
+                rows = 2;
+
+                spacingX = 3.0f;
+                spacingY = 3.8f;
+
+                Debug.Log("CardManager: EASY - 3 x 2 grid");
+                break;
+
+            case DifficultyManager.Difficulty.Medium:
+
+                columns = 4;
+                rows = 3;
+
+                spacingX = 2.6f;
+                spacingY = 3.5f;
+
+                Debug.Log("CardManager: MEDIUM - 4 x 3 grid");
+                break;
+
+            case DifficultyManager.Difficulty.Hard:
+
+                columns = 4;
+                rows = 4;
+
+                spacingX = 2.6f;
+                spacingY = 3.2f;
+
+                Debug.Log("CardManager: HARD - 4 x 4 grid");
+                break;
+        }
     }
 
     private void CreateCards()
@@ -37,11 +88,17 @@ public class CardManager : MonoBehaviour
             return;
         }
 
-        if (cardSprites == null || cardSprites.Length != 6)
+        int pairCount = (columns * rows) / 2;
+
+        if (cardSprites == null || cardSprites.Length < pairCount)
         {
             Debug.LogError(
-                "CardManager: Please assign exactly 6 unique card sprites."
+                "CardManager: Not enough unique card sprites. " +
+                "Required pairs: " + pairCount +
+                ", Available sprites: " +
+                (cardSprites == null ? 0 : cardSprites.Length)
             );
+
             return;
         }
 
@@ -49,8 +106,8 @@ public class CardManager : MonoBehaviour
 
         List<int> cardTypes = new List<int>();
 
-        // Create 6 pairs.
-        for (int i = 0; i < 6; i++)
+        // Create the required number of pairs.
+        for (int i = 0; i < pairCount; i++)
         {
             cardTypes.Add(i);
             cardTypes.Add(i);
@@ -115,6 +172,7 @@ public class CardManager : MonoBehaviour
             int temp = list[i];
 
             list[i] = list[randomIndex];
+
             list[randomIndex] = temp;
         }
     }
