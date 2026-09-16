@@ -178,8 +178,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Round '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
+  m_sharedMaterial: {fileID: 5153989332885534482, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -1550,8 +1550,6 @@ MonoBehaviour:
   livesText: {fileID: 1835928375}
   roundText: {fileID: 133777557}
   timerText: {fileID: 1694938084}
-  winPanel: {fileID: 774313704}
-  losePanel: {fileID: 1321124171}
 --- !u!4 &829907086
 Transform:
   m_ObjectHideFlags: 0
@@ -1938,8 +1936,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Score '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
+  m_sharedMaterial: {fileID: 5153989332885534482, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -2539,8 +2537,6 @@ MonoBehaviour:
   timer: 90
   maxRounds: 6
   pausePanel: {fileID: 1515903384}
-  winPanel: {fileID: 774313704}
-  losePanel: {fileID: 1321124171}
 --- !u!4 &1604793067
 Transform:
   m_ObjectHideFlags: 0
@@ -2690,8 +2686,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Timer '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
+  m_sharedMaterial: {fileID: 5153989332885534482, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
@@ -3220,8 +3216,8 @@ MonoBehaviour:
       m_Calls: []
   m_text: 'Lives '
   m_isRightToLeft: 0
-  m_fontAsset: {fileID: 11400000, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
-  m_sharedMaterial: {fileID: 2180264, guid: 8f586378b4e144a9851e7b34d9b748ee, type: 2}
+  m_fontAsset: {fileID: 11400000, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
+  m_sharedMaterial: {fileID: 5153989332885534482, guid: 3d7c207a7c3021f439dd7f832348ee96, type: 2}
   m_fontSharedMaterials: []
   m_fontMaterial: {fileID: 0}
   m_fontMaterials: []
